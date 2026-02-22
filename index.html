@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>גלריית בגדים שכונתית</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            margin-top: 15px;
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .nav-tab:hover:not(.active) {
+            background: #f8f9ff;
+            color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .search-filters {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .clear-filters, .refresh-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        .clear-filters {
+            background: #dc3545;
+            margin-top: 25px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .item-card.request-card {
+            border: 3px solid #ffc107;
+        }
+        .item-image {
+            width: 100%;
+            height: 250px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            color: #dee2e6;
+            position: relative;
+            overflow: hidden;
+        }
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .item-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+        .status-giving {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-looking {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .item-details {
+            padding: 20px;
+        }
+        .item-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .item-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        .item-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .contact-box {
+            background: #e8f4fd;
+            border: 2px solid #b8daff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .contact-box h4 {
+            color: #004085;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+        }
+        .contact-item strong {
+            color: #004085;
+            min-width: 60px;
+        }
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: auto;
+        }
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 1.2em;
+        }
+        .instructions {
+            background: #e8f4fd;
+            border: 2px solid #b8daff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .instructions h3 {
+            color: #004085;
+            margin-bottom: 10px;
+        }
+        .add-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.5em;
+            color: #667eea;
+        }
+        .type-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👗 גלריית בגדים שכונתית</h1>
+            <p>מערכת חכמה למסירה וחיפוש בגדים</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('giving')">🎁 בגדים למסירה</button>
+            <button class="nav-tab" onclick="switchTab('looking')">🔍 מחפשים בגדים</button>
+            <button class="nav-tab" onclick="switchTab('add')">➕ הוסף</button>
+        </div>
+
+        <!-- Giving Tab -->
+        <div id="giving" class="tab-content active">
+            <div class="search-filters">
+                <h3>🔍 חפש בגדים למסירה</h3>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>חיפוש חופשי:</label>
+                        <input type="text" id="searchTextGiving" placeholder="חפש לפי תיאור, מידה, סוג..." onkeyup="filterGivingItems()">
+                    </div>
+                    <div class="filter-group">
+                        <label>מצב:</label>
+                        <select id="filterConditionGiving" onchange="filterGivingItems()">
+                            <option value="">כל המצבים</option>
+                            <option value="חדש">חדש</option>
+                            <option value="כמעט חדש">כמעט חדש</option>
+                            <option value="במצב טוב">במצב טוב</option>
+                            <option value="בשימוש">בשימוש</option>
+                        </select>
+                    </div>
+                    <button class="clear-filters" onclick="clearGivingFilters()">נקה סינונים</button>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="refresh-btn" onclick="loadDataFromGoogleSheets()">🔄 רענן</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="givingItems">0</div>
+                    <div class="stat-label">בגדים למסירה</div>
+                </div>
+            </div>
+
+            <div id="loadingMessageGiving" class="loading">טוען פריטים... ⏳</div>
+            <div class="gallery" id="givingGallery" style="display: none;"></div>
+        </div>
+
+        <!-- Looking Tab -->
+        <div id="looking" class="tab-content">
+            <div class="search-filters">
+                <h3>🔍 חפש בקשות לבגדים</h3>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>חיפוש חופשי:</label>
+                        <input type="text" id="searchTextLooking" placeholder="חפש מה אנשים מחפשים..." onkeyup="filterLookingItems()">
+                    </div>
+                    <button class="clear-filters" onclick="clearLookingFilters()">נקה סינונים</button>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="refresh-btn" onclick="loadDataFromGoogleSheets()">🔄 רענן</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="lookingItems">0</div>
+                    <div class="stat-label">מחפשים בגדים</div>
+                </div>
+            </div>
+
+            <div id="loadingMessageLooking" class="loading">טוען בקשות... ⏳</div>
+            <div class="gallery" id="lookingGallery" style="display: none;"></div>
+        </div>
+
+        <!-- Add Tab -->
+        <div id="add" class="tab-content">
+            <div class="instructions">
+                <h3>📋 איך זה עובד?</h3>
+                <ul>
+                    <li><strong>יש לך בגדים למסירה?</strong> מלא את הטופס ובחר "מוסרת"</li>
+                    <li><strong>מחפשת בגד ספציפי?</strong> מלא את הטופס ובחר "מעוניינת"</li>
+                    <li><strong>הוסף תמונות איכותיות</strong> - זה עוזר מאוד!</li>
+                    <li><strong>הפריט יופיע תוך דקות</strong> - לחץ רענן כדי לראות</li>
+                </ul>
+            </div>
+
+            <div class="add-form">
+                <h2>➕ הוסף פריט / בקשה</h2>
+                <p style="font-size: 1.2em; color: #666; margin: 20px 0;">לחץ על הכפתור למטה למילוי טופס</p>
+                
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfXXueV-ZvnqTpkUYSmQhP5o7YFCOmdVxswjqMfQLw468DiHw/viewform" target="_blank" class="btn" style="font-size: 24px; padding: 25px 50px; margin: 30px 0;">
+                    📝 פתח טופס
+                </a>
+                
+                <div style="background: #d4edda; border: 2px solid #c3e6cb; border-radius: 10px; padding: 20px; margin: 30px auto; max-width: 600px; text-align: right;">
+                    <h4 style="color: #155724; margin-bottom: 10px;">💡 טיפ חשוב!</h4>
+                    <p style="color: #155724; margin: 0;">אם את <strong>מוסרת</strong> בגדים - בחרי "מוסרת" בטופס<br>
+                    אם את <strong>מחפשת</strong> בגד ספציפי - בחרי "מעוניינת" בטופס</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allItems = [];
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTS6xVi2zjuU0vnQh3E88w1WJUPAhI-cxbsjUF2uzBtTQ9qqBo-802SqnhiJaHL0r-Yg4MgMPfmISjV/pub?gid=1732128693&single=true&output=csv';
+
+        async function loadDataFromGoogleSheets() {
+            try {
+                document.getElementById('loadingMessageGiving').style.display = 'block';
+                document.getElementById('loadingMessageLooking').style.display = 'block';
+                document.getElementById('givingGallery').style.display = 'none';
+                document.getElementById('lookingGallery').style.display = 'none';
+                
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                const items = parseCSV(csvText);
+                allItems = items;
+                
+                console.log('Loaded items:', allItems);
+                
+                document.getElementById('loadingMessageGiving').style.display = 'none';
+                document.getElementById('loadingMessageLooking').style.display = 'none';
+                document.getElementById('givingGallery').style.display = 'grid';
+                document.getElementById('lookingGallery').style.display = 'grid';
+                
+                updateGalleries();
+                updateStats();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingMessageGiving').innerHTML = '❌ שגיאה. <button class="refresh-btn" onclick="loadDataFromGoogleSheets()">נסה שוב</button>';
+                document.getElementById('loadingMessageLooking').innerHTML = '❌ שגיאה. <button class="refresh-btn" onclick="loadDataFromGoogleSheets()">נסה שוב</button>';
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const items = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = parseCSVLine(lines[i]);
+                const item = {};
+                
+                headers.forEach((header, index) => {
+                    item[header] = values[index] || '';
+                });
+                
+                const imageUrls = extractAllImageUrls(item['הוספת תמונה'] || '');
+                
+                const formattedItem = {
+                    id: i,
+                    timestamp: item['חותמת זמן'] || '',
+                    type: item['מוסרת או מעוניינת?'] || '',
+                    ownerName: item['שם פרטי ושם משפחה'] || '',
+                    ownerEmail: item['כתובת דוא"ל ליצירת קשר'] || '',
+                    ownerPhone: item['מספר טלפון ליצירת קשר'] || '',
+                    address: item['כתובת'] || '',
+                    itemTypes: item['סוג הפריטים שאת/ה מציע/ה'] || '',
+                    sizes: item['מידות הפריטים'] || '',
+                    condition: item['מצב הפריטים'] || '',
+                    description: item['תיאור קצר על הפריטים'] || '',
+                    imageUrls: imageUrls,
+                    notes: item['הערות נוספות'] || '',
+                    validUntil: item['רלוונטי עד לתאריך?'] || ''
+                };
+                
+                if (formattedItem.description && formattedItem.type) {
+                    items.push(formattedItem);
+                }
+            }
+            
+            return items;
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim().replace(/^"|"$/g, ''));
+            return values;
+        }
+
+        function extractAllImageUrls(imageField) {
+            if (!imageField) return [];
+            
+            const urls = [];
+            const driveMatches = imageField.match(/https:\/\/drive\.google\.com\/[^\s,)]+/g);
+            
+            if (driveMatches) {
+                driveMatches.forEach(match => {
+                    const fileIdMatch = match.match(/[-\w]{25,}/);
+                    if (fileIdMatch) {
+                        // Using proxy to bypass CORS
+                        urls.push(`https://drive.google.com/thumbnail?id=${fileIdMatch[0]}&sz=w1000`);
+                    }
+                });
+            }
+            
+            return urls;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function copyToClipboard(text, buttonElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = '✓ הועתק!';
+                buttonElement.style.background = '#28a745';
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.style.background = '#667eea';
+                }, 2000);
+            }).catch(() => {
+                alert('הועתק: ' + text);
+            });
+        }
+
+        function updateGalleries() {
+            updateGivingGallery();
+            updateLookingGallery();
+        }
+
+        function createContactBox(item) {
+            return `
+                <div class="contact-box">
+                    <h4>📞 פרטי קשר</h4>
+                    <div class="contact-item">
+                        <strong>שם:</strong>
+                        <span>${item.ownerName}</span>
+                        <button class="copy-btn" onclick="copyToClipboard('${item.ownerName}', this)">העתק</button>
+                    </div>
+                    <div class="contact-item">
+                        <strong>טלפון:</strong>
+                        <a href="tel:${item.ownerPhone}" style="color: #004085; text-decoration: none;">${item.ownerPhone}</a>
+                        <button class="copy-btn" onclick="copyToClipboard('${item.ownerPhone}', this)">העתק</button>
+                    </div>
+                    <div class="contact-item">
+                        <strong>מייל:</strong>
+                        <a href="mailto:${item.ownerEmail}" style="color: #004085; text-decoration: none;">${item.ownerEmail}</a>
+                        <button class="copy-btn" onclick="copyToClipboard('${item.ownerEmail}', this)">העתק</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateGivingGallery() {
+            const gallery = document.getElementById('givingGallery');
+            const givingItems = allItems.filter(item => item.type.includes('מוסרת'));
+            const filteredItems = getFilteredGivingItems(givingItems);
+            
+            if (filteredItems.length === 0) {
+                gallery.innerHTML = '<div class="no-results"><h3>😔 אין בגדים למסירה כרגע</h3></div>';
+                return;
+            }
+
+            gallery.innerHTML = '';
+            filteredItems.forEach(item => {
+                const itemTypesArray = item.itemTypes.split(',').map(t => t.trim());
+                const itemTypesBadges = itemTypesArray.map(type => `<span class="type-badge">${type}</span>`).join(' ');
+                
+                const imageHTML = item.imageUrls.length > 0 
+                    ? `<img src="${item.imageUrls[0]}" alt="תמונת פריט" crossorigin="anonymous">`
+                    : '👕';
+                
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <div class="item-image">${imageHTML}</div>
+                    <div class="item-status status-giving">למסירה</div>
+                    <div class="item-details">
+                        <div class="item-title">${item.description.substring(0, 50)}${item.description.length > 50 ? '...' : ''}</div>
+                        <div style="margin-bottom: 10px;">${itemTypesBadges}</div>
+                        <div class="item-meta">
+                            <span><strong>מידות:</strong> ${item.sizes}</span>
+                            <span><strong>מצב:</strong> ${item.condition}</span>
+                        </div>
+                        ${item.address ? `<div class="item-description"><strong>איזור:</strong> ${item.address}</div>` : ''}
+                        <div class="item-description">${item.description}</div>
+                        ${item.notes ? `<div class="item-description"><strong>הערות:</strong> ${item.notes}</div>` : ''}
+                        ${item.validUntil ? `<div style="color: #856404; font-size: 13px; margin-top: 10px;">⏰ רלוונטי עד: ${item.validUntil}</div>` : ''}
+                        ${createContactBox(item)}
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        function updateLookingGallery() {
+            const gallery = document.getElementById('lookingGallery');
+            const lookingItems = allItems.filter(item => item.type.includes('מעוניינת'));
+            const filteredItems = getFilteredLookingItems(lookingItems);
+            
+            if (filteredItems.length === 0) {
+                gallery.innerHTML = '<div class="no-results"><h3>😔 אין בקשות לבגדים כרגע</h3></div>';
+                return;
+            }
+
+            gallery.innerHTML = '';
+            filteredItems.forEach(item => {
+                const itemTypesArray = item.itemTypes.split(',').map(t => t.trim());
+                const itemTypesBadges = itemTypesArray.map(type => `<span class="type-badge">${type}</span>`).join(' ');
+                
+                const imageHTML = item.imageUrls.length > 0 
+                    ? `<img src="${item.imageUrls[0]}" alt="תמונה" crossorigin="anonymous">`
+                    : '🔍';
+                
+                const card = document.createElement('div');
+                card.className = 'item-card request-card';
+                card.innerHTML = `
+                    <div class="item-image">${imageHTML}</div>
+                    <div class="item-status status-looking">מחפשת</div>
+                    <div class="item-details">
+                        <div class="item-title">${item.description.substring(0, 50)}${item.description.length > 50 ? '...' : ''}</div>
+                        <div style="margin-bottom: 10px;">${itemTypesBadges}</div>
+                        <div class="item-meta">
+                            <span><strong>מידות:</strong> ${item.sizes}</span>
+                        </div>
+                        ${item.address ? `<div class="item-description"><strong>איזור:</strong> ${item.address}</div>` : ''}
+                        <div class="item-description"><strong>מחפשת:</strong> ${item.description}</div>
+                        ${item.notes ? `<div class="item-description"><strong>הערות:</strong> ${item.notes}</div>` : ''}
+                        ${createContactBox(item)}
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        function getFilteredGivingItems(items) {
+            const searchText = document.getElementById('searchTextGiving').value.toLowerCase();
+            const condition = document.getElementById('filterConditionGiving').value;
+            
+            let filtered = items;
+            if (searchText) {
+                filtered = filtered.filter(item => 
+                    item.description.toLowerCase().includes(searchText) ||
+                    item.itemTypes.toLowerCase().includes(searchText) ||
+                    item.sizes.toLowerCase().includes(searchText)
+                );
+            }
+            if (condition) {
+                filtered = filtered.filter(item => item.condition === condition);
+            }
+            return filtered;
+        }
+
+        function getFilteredLookingItems(items) {
+            const searchText = document.getElementById('searchTextLooking').value.toLowerCase();
+            
+            if (!searchText) return items;
+            return items.filter(item => 
+                item.description.toLowerCase().includes(searchText) ||
+                item.itemTypes.toLowerCase().includes(searchText) ||
+                item.sizes.toLowerCase().includes(searchText)
+            );
+        }
+
+        function filterGivingItems() { updateGivingGallery(); }
+        function filterLookingItems() { updateLookingGallery(); }
+        function clearGivingFilters() {
+            document.getElementById('searchTextGiving').value = '';
+            document.getElementById('filterConditionGiving').value = '';
+            updateGivingGallery();
+        }
+        function clearLookingFilters() {
+            document.getElementById('searchTextLooking').value = '';
+            updateLookingGallery();
+        }
+
+        function updateStats() {
+            const givingCount = allItems.filter(item => item.type.includes('מוסרת')).length;
+            const lookingCount = allItems.filter(item => item.type.includes('מעוניינת')).length;
+            document.getElementById('givingItems').textContent = givingCount;
+            document.getElementById('lookingItems').textContent = lookingCount;
+        }
+
+        window.addEventListener('load', () => {
+            loadDataFromGoogleSheets();
+        });
+    </script>
+</body>
+</html>
