@@ -705,6 +705,7 @@
         
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -1022,4 +1023,5 @@
     </script>
 </body>
 </html>
+
 
