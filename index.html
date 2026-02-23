@@ -579,7 +579,7 @@
     <script>
         const IMGBB_API_KEY = '7f32919a5f5cd1f809ca2214bbecb3eb';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTS6xVi2zjuU0vnQh3E88w1WJUPAhI-cxbsjUF2uzBtTQ9qqBo-802SqnhiJaHL0r-Yg4MgMPfmISjV/pub?gid=1732128693&single=true&output=csv';
-        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfXXueV-ZvnqTpkUYSmQhP5o7YFCOmdVxswjqMfQLw468DiHw/formResponse';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxie8IgJG4_aVUsYlZhVQLy8afrtfaQJX82VgYMwtaG8bfrWjWF0O_g6S6Br64U5PsR/exec';
 
         let allItems = [];
         let selectedImages = [];
@@ -673,41 +673,30 @@
                     }
                 }
 
-                uploadProgress.textContent = '⏳ שולח נתונים לגוגל...';
+                uploadProgress.textContent = '⏳ שולח נתונים לגוגל שיטס...';
 
-                // Prepare date
-                const validUntil = document.getElementById('validUntilInput').value;
-                let dateYear = '', dateMonth = '', dateDay = '';
-                if (validUntil) {
-                    const dateParts = validUntil.split('-');
-                    dateYear = dateParts[0];
-                    dateMonth = dateParts[1];
-                    dateDay = dateParts[2];
-                }
+                // Submit to Apps Script
+                const itemData = {
+                    type: document.getElementById('typeSelect').value,
+                    name: document.getElementById('nameInput').value,
+                    email: document.getElementById('emailInput').value,
+                    phone: document.getElementById('phoneInput').value,
+                    address: document.getElementById('addressInput').value,
+                    itemTypes: document.getElementById('itemTypesInput').value,
+                    sizes: document.getElementById('sizesInput').value,
+                    condition: document.getElementById('conditionSelect').value,
+                    description: document.getElementById('descriptionInput').value,
+                    imageUrls: imageUrls.join(', '),
+                    validUntil: document.getElementById('validUntilInput').value,
+                    notes: document.getElementById('notesInput').value
+                };
 
-                // Submit to Google Forms
-                const formData = new URLSearchParams();
-                formData.append('entry.1832659282', document.getElementById('typeSelect').value);
-                formData.append('entry.2134351077', document.getElementById('nameInput').value);
-                formData.append('entry.1822216557', document.getElementById('emailInput').value);
-                formData.append('entry.352363500', document.getElementById('phoneInput').value);
-                formData.append('entry.2074130047', document.getElementById('addressInput').value);
-                formData.append('entry.772602839', document.getElementById('itemTypesInput').value);
-                formData.append('entry.544147502', document.getElementById('sizesInput').value);
-                formData.append('entry.256025821', document.getElementById('conditionSelect').value);
-                formData.append('entry.1702107072', document.getElementById('descriptionInput').value);
-                formData.append('entry.2124812051', imageUrls.join(', '));
-                if (validUntil) {
-                    formData.append('entry.969117897_year', dateYear);
-                    formData.append('entry.969117897_month', dateMonth);
-                    formData.append('entry.969117897_day', dateDay);
-                }
-                formData.append('entry.544147502', document.getElementById('notesInput').value);
-
-                await fetch(GOOGLE_FORM_URL, {
+                const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(itemData)
                 });
 
                 // Show success
